@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamer's Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        #donations {
+            margin-top: 20px;
+        }
+        .donation {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+        .donation-message {
+            font-weight: bold;
+        }
+        .donation-time {
+            font-size: 0.9em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Donations</h1>
+    <div id="donations"></div> <!-- Tempat menampilkan donasi -->
+
+    <script>
+        // Membuka koneksi WebSocket ke server
+        const ws = new WebSocket('ws://localhost:8080/ws'); // Sesuaikan dengan URL server WebSocket Anda
+        const donationsContainer = document.getElementById('donations');
+
+        // Menangani pesan yang diterima dari server
+        ws.onmessage = function (event) {
+            console.log("Raw message received:", event.data); // Debug log
+
+            try {
+                const data = JSON.parse(event.data); // Parse JSON
+                console.log("Parsed data:", data); // Debug log
+
+                if (data.name && data.amount && data.message) {
+                    const donationElement = document.createElement('div');
+                    donationElement.classList.add('donation');
+                    donationElement.innerHTML = `
+                        <span class="donation-message">${data.name} donated Rp${data.amount.toFixed(2)}</span><br>
+                        <span>${data.message}</span><br>
+                        <span class="donation-time">${new Date().toLocaleTimeString()}</span>
+                    `;
+                    donationsContainer.appendChild(donationElement);
+                } else {
+                    console.error("Invalid data format:", data);
+                }
+            } catch (error) {
+                console.error("Error parsing WebSocket message:", error, event.data);
+            }
+        };
+
+
+        // WebSocket events untuk koneksi
+        ws.onopen = function() {
+            console.log('WebSocket connected');
+        };
+
+        ws.onerror = function(error) {
+            console.log('WebSocket error:', error);
+        };
+
+        ws.onclose = function() {
+            console.log('WebSocket closed');
+        };
+
+    </script>
+</body>
+</html>

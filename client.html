@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate to Streamer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        input[type="text"], input[type="number"], button {
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Send Donation</h1>
+
+    <!-- Donation Form -->
+    <input type="text" id="nameInput" placeholder="Your Name" />
+    <input type="number" id="amountInput" placeholder="Donation Amount" />
+    <input type="text" id="messageInput" placeholder="Your Message" />
+    <button onclick="sendDonation()">Send Donation</button>
+
+    <script>
+        // WebSocket connection to the server
+        const ws = new WebSocket('ws://localhost:8080/ws'); // Make sure the WebSocket server is running
+
+        // Send donation data to the server
+        function sendDonation() {
+            const name = document.getElementById('nameInput').value.trim();
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const message = document.getElementById('messageInput').value.trim();
+
+            if (name && amount && message) {
+                // Create donation object
+                const donation = {
+                    name: name,
+                    amount: amount,
+                    message: message
+                };
+
+                console.log("Sending donation:", donation);  // Log pesan donasi yang akan dikirim
+
+                // Send the donation data to the WebSocket server as JSON
+                ws.send(JSON.stringify(donation));
+
+                // Clear input fields after sending
+                document.getElementById('nameInput').value = '';
+                document.getElementById('amountInput').value = '';
+                document.getElementById('messageInput').value = '';
+            } else {
+                alert('Please fill all fields!');
+            }
+        }
+
+        // Handle WebSocket open
+        ws.onopen = function() {
+            console.log('WebSocket connected');
+        };
+
+        // Handle WebSocket error
+        ws.onerror = function(error) {
+            console.log('WebSocket error:', error);
+        };
+
+        // Handle WebSocket close
+        ws.onclose = function() {
+            console.log('WebSocket closed');
+        };
+
+    </script>
+</body>
+</html>
